@@ -6,12 +6,8 @@ class Candy{
         this.type = type;
     }
 
-    setOffset(x, y){
-        this.offsetX = x;
-        this.offsetY = y;
-    }
-
-    setIsDragging(isDragging){
-        self.isDragging = isDragging;
+    setPosition(x, y){
+        this.x = x;
+        this.y = y;
     }
 }

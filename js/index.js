@@ -4,6 +4,10 @@ class Game{
         this.drawGrid();
         this.loadCandies();
         this.addEventListeners();
+        
+        // requestAnimationFrame(this.paintCanvas.bind(this));
+        this.paintCanvas();
+
     }
 
     init(){
@@ -59,6 +63,22 @@ class Game{
         }
     }
 
+    paintCanvas(){
+        console.log(this);
+        this.clearCanvas();
+        for (let column of this.candiesArray){
+            for(let candy of column){
+                let spriteCandy = sprite[candy.color][candy.type];
+                this.ctx.drawImage(this.img, spriteCandy.x, spriteCandy.y, sprite.width, sprite.height, candy.x, candy.y, CANDY_WIDTH, CANDY_HEIGHT);
+            }
+        }
+        requestAnimationFrame(this.paintCanvas.bind(this));
+    }
+
+    clearCanvas(){
+        this.ctx.clearRect(0, 0, this.canvas.offsetWidth, this.canvas.offsetHeight);
+    }
+
     loadCandies(){
         this.img = new Image();
         this.img.src = 'images/spritesheet.png';
@@ -92,31 +112,32 @@ class Game{
         // for drag and drop
         this.canvas.addEventListener('mousedown', (e)=>{
             if(this.checkCandyClick(e.clientX, e.clientY) !== null){
-                console.log("mouse down");
                 this.selectedCandy = this.checkCandyClick(e.clientX, e.clientY);
                 this.offsetX = e.clientX - this.selectedCandy.x;
                 this.offsetY = e.clientY - this.selectedCandy.y;
                 this.isDragging = true;
+                this.canvas.addEventListener('mousemove', this.mouseMoveHandler.bind(this));
             }
         });
     
         // only drag/give co-ordinates if mouse down, if mouse up, don't do anything
-        this.canvas.addEventListener('mouseup', this.mouseUpHandler);
-        this.canvas.addEventListener('mousemove', this.mouseMoveHandler);
+        this.canvas.addEventListener('mouseup', this.mouseUpHandler.bind(this));
     }  
 
     mouseUpHandler(e){
-        console.log("mouse up");
         this.isDragging = false;
         this.selectedCandy = null;
         this.offsetX = 0;
         this.offsetY = 0;
+        this.canvas.removeEventListener('mousemove', this.mouseMoveHandler.bind(this));
     }
 
     mouseMoveHandler(e){
         if(this.isDragging){
-            let spriteCandy = sprite[this.selectedCandy.color][this.selectedCandy.type];
-            this.ctx.drawImage(this.img, spriteCandy.x, spriteCandy.y, sprite.width, sprite.height, e.clientX - this.offsetX, e.clientY - this.offsetY, CANDY_WIDTH, CANDY_HEIGHT);
+            // this.ctx.clearRect(this.selectedCandy.x, this.selectedCandy.y, CANDY_WIDTH, CANDY_HEIGHT);
+            this.selectedCandy.setPosition(e.clientX - this.offsetX, e.clientY - this.offsetY);
+            // let spriteCandy = sprite[this.selectedCandy.color][this.selectedCandy.type];
+            // this.ctx.drawImage(this.img, spriteCandy.x, spriteCandy.y, sprite.width, sprite.height, e.clientX - this.offsetX, e.clientY - this.offsetY, CANDY_WIDTH, CANDY_HEIGHT);
         }
     }
 }
