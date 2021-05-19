@@ -4,8 +4,6 @@ class Game{
         this.drawGrid();
         this.loadCandies();
         this.addEventListeners();
-        
-        // requestAnimationFrame(this.paintCanvas.bind(this));
         this.paintCanvas();
 
     }
@@ -20,6 +18,7 @@ class Game{
         this.selectedCandy = null;
         this.offsetX = 0;
         this.offsetY = 0;
+        this.move = 0;
     }
 
     drawGrid(){
@@ -56,7 +55,7 @@ class Game{
                 const y = yCell * GRID_HEIGHT;
                 this.ctx.drawImage(this.img, candy.x, candy.y, sprite.width, sprite.height, x+CANDY_PADDING, y+CANDY_PADDING, CANDY_WIDTH, CANDY_HEIGHT);
 
-                let candyDrawn = new Candy(candy.color, x+CANDY_PADDING, y+CANDY_PADDING, candy.type);
+                let candyDrawn = new Candy(candy.color, x+CANDY_PADDING, y+CANDY_PADDING, candy.type, yCell, xCell);
                 columnCandies.push(candyDrawn);
             }
             this.candiesArray.push(columnCandies);
@@ -64,8 +63,8 @@ class Game{
     }
 
     paintCanvas(){
-        console.log(this);
         this.clearCanvas();
+        this.drawGrid();
         for (let column of this.candiesArray){
             for(let candy of column){
                 let spriteCandy = sprite[candy.color][candy.type];
@@ -87,9 +86,9 @@ class Game{
         }.bind(this);
     }
     
-    isPointContained(x, y, candyLeft, candyTop){
-        if(x >= (candyLeft + CANDY_PADDING) && x <= (candyLeft + CANDY_PADDING + CANDY_WIDTH) 
-                && y >= (candyTop + CANDY_PADDING) && y <= (candyTop + CANDY_PADDING + CANDY_HEIGHT)){
+    isPointContained(x, y, candyLeft, candyTop, width=CANDY_WIDTH, height=CANDY_HEIGHT){
+        if(x >= (candyLeft + CANDY_PADDING) && x <= (candyLeft + CANDY_PADDING + width) 
+                && y >= (candyTop + CANDY_PADDING) && y <= (candyTop + CANDY_PADDING + height)){
                     return true;
         }
         else{
@@ -125,21 +124,97 @@ class Game{
     }  
 
     mouseUpHandler(e){
-        this.isDragging = false;
-        this.selectedCandy = null;
-        this.offsetX = 0;
-        this.offsetY = 0;
-        this.canvas.removeEventListener('mousemove', this.mouseMoveHandler.bind(this));
+        console.log("up handler");
+        if(this.isDragging){
+            console.log("selected candy", this.selectedCandy);
+            this.swapCandies(this.move);
+            this.isDragging = false;
+            this.selectedCandy = null;
+            this.offsetX = 0;
+            this.offsetY = 0;
+            this.canvas.removeEventListener('mousemove', this.mouseMoveHandler.bind(this));
+        }
+    
     }
 
     mouseMoveHandler(e){
         if(this.isDragging){
-            // this.ctx.clearRect(this.selectedCandy.x, this.selectedCandy.y, CANDY_WIDTH, CANDY_HEIGHT);
-            this.selectedCandy.setPosition(e.clientX - this.offsetX, e.clientY - this.offsetY);
-            // let spriteCandy = sprite[this.selectedCandy.color][this.selectedCandy.type];
-            // this.ctx.drawImage(this.img, spriteCandy.x, spriteCandy.y, sprite.width, sprite.height, e.clientX - this.offsetX, e.clientY - this.offsetY, CANDY_WIDTH, CANDY_HEIGHT);
+            if((e.clientX - this.offsetX + CANDY_WIDTH + CANDY_PADDING) >= this.canvas.offsetWidth){
+                console.log("mouse up handler from inside mouse move");
+                this.mouseUpHandler(e);
+                return;
+            }
+
+            if((e.clientY - this.offsetY + CANDY_HEIGHT + CANDY_PADDING) >= this.canvas.offsetHeight){
+                console.log("mouse up handler from inside mouse move");
+                this.mouseUpHandler(e);
+                return;
+            }
+
+            let move = this.selectedCandy.isValidMove();
+            if(move){
+                this.move = move;
+                this.selectedCandy.setPosition(e.clientX - this.offsetX, e.clientY - this.offsetY);
+            }
+            else{
+                console.log("mouse up handler from inside mouse move");
+                this.mouseUpHandler(e);
+                return;
+            }
         }
     }
+
+    swapCandies(move){
+        let swapCandyRow = this.selectedCandy.row;
+        let swapCandyColumn = this.selectedCandy.column;
+        let candyToBeSwapped;
+
+        if(move === MOVE_LEFT){
+            swapCandyColumn = this.selectedCandy.column - 1;
+            candyToBeSwapped = this.placeSwappingCandy(swapCandyRow, swapCandyColumn);
+            candyToBeSwapped.column += 1;
+            this.selectedCandy.column -= 1;
+         
+        }
+        else if(move === MOVE_RIGHT){
+            swapCandyColumn = this.selectedCandy.column + 1;
+            candyToBeSwapped = this.placeSwappingCandy(swapCandyRow, swapCandyColumn);
+            candyToBeSwapped.column -= 1;
+            this.selectedCandy.column += 1;
+
+        }
+
+        else if(move === MOVE_UP){
+            swapCandyRow = this.selectedCandy.row -1;
+            candyToBeSwapped = this.placeSwappingCandy(swapCandyRow, swapCandyColumn);
+            candyToBeSwapped.row += 1;
+            this.selectedCandy.row -=1;
+        }
+
+        else if(move === MOVE_DOWN){
+            swapCandyRow = this.selectedCandy.row + 1;
+            candyToBeSwapped = this.placeSwappingCandy(swapCandyRow, swapCandyColumn);
+            candyToBeSwapped.row -= 1;
+            this.selectedCandy.row +=1;
+        }
+
+        this.resetSwappedCandiesPosition(candyToBeSwapped, swapCandyRow, swapCandyColumn);
+    }
+
+    resetSwappedCandiesPosition(candyToBeSwapped, swapCandyRow, swapCandyColumn){
+        this.candiesArray[swapCandyColumn][swapCandyRow] = this.selectedCandy; 
+        this.selectedCandy.x = this.selectedCandy.column * GRID_WIDTH + CANDY_PADDING;
+        this.selectedCandy.y = this.selectedCandy.row * GRID_HEIGHT + CANDY_PADDING;
+        candyToBeSwapped.x = candyToBeSwapped.column * GRID_WIDTH + CANDY_PADDING;
+        candyToBeSwapped.y = candyToBeSwapped.row * GRID_HEIGHT +CANDY_PADDING;
+    }
+
+    placeSwappingCandy(swapCandyRow, swapCandyColumn){
+        let candyToBeSwapped = this.candiesArray[swapCandyColumn][swapCandyRow];
+        this.candiesArray[this.selectedCandy.column][this.selectedCandy.row] = candyToBeSwapped;
+        return candyToBeSwapped;
+    }
+
 }
 
 new Game();
