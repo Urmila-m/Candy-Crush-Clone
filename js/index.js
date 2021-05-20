@@ -43,24 +43,6 @@ class Game{
         candy.color = COLORS[candy_index];
         return candy;
     }  
-
-    // candies are filled vertically first
-    // fillCandies(){
-    //     for (let xCell = 0; xCell < 8; xCell++) {
-    //         let columnCandies = []
-    //         for (let yCell = 0; yCell < 8; yCell++) {
-    //             let candy = this.chooseRandomCandy();
-
-    //             const x = xCell * GRID_WIDTH;
-    //             const y = yCell * GRID_HEIGHT;
-    //             this.ctx.drawImage(this.img, candy.x, candy.y, sprite.width, sprite.height, x+CANDY_PADDING, y+CANDY_PADDING, CANDY_WIDTH, CANDY_HEIGHT);
-
-    //             let candyDrawn = new Candy(candy.color, x+CANDY_PADDING, y+CANDY_PADDING, candy.type, yCell, xCell);
-    //             columnCandies.push(candyDrawn);
-    //         }
-    //         this.candiesArray.push(columnCandies);
-    //     }
-    // } 
     
     fillCandies(){
         for (let xCell = 0; xCell < 8; xCell++) {
@@ -148,7 +130,8 @@ class Game{
         this.offsetX = 0;
         this.offsetY = 0;
         document.removeEventListener('mousemove', this.mouseMoveHandler.bind(this));
-        this.clearMatchedCandies(new CheckForMatch(this.candiesArray).checkFor5VerMatch());
+        let checkForMatch = new CheckForMatch(this.candiesArray);
+        checkForMatch.checkAndClearAllMatches();
     }
 
     mouseMoveHandler(e){
@@ -173,6 +156,7 @@ class Game{
             }
             else{
                 console.log("invalid move");
+                document.removeEventListener('mousemove', this.mouseMoveHandler.bind(this));
             }
         }
     }
@@ -214,6 +198,9 @@ class Game{
             
             this.resetSwappedCandiesPosition(candyToBeSwapped, swapCandyRow, swapCandyColumn);
         }
+        else{
+            this.selectedCandy.resetPosition();
+        }
     }
 
     resetSwappedCandiesPosition(candyToBeSwapped, swapCandyRow, swapCandyColumn){
@@ -226,34 +213,6 @@ class Game{
         let candyToBeSwapped = this.candiesArray[swapCandyColumn][swapCandyRow];
         this.candiesArray[this.selectedCandy.column][this.selectedCandy.row] = candyToBeSwapped;
         return candyToBeSwapped;
-    }
-
-    clearCandy(candy){
-        this.ctx.clearRect(candy.x, candy.y, CANDY_WIDTH, CANDY_HEIGHT);
-    }
-
-    clearMatchedCandies(match){
-        for(let group of match){
-            for(let matchObject of group){
-                let col = matchObject[0].col;
-                let row = matchObject[0].row;
-                for(let i=0; i<matchObject.length; i++){
-                    this.candiesArray[col].splice(row, 1);
-                    //  this.ctx.clearRect(row * CANDY_HEIGHT + CANDY_PADDING, col* CANDY_WIDTH + CANDY_PADDING, CANDY_WIDTH, CANDY_HEIGHT);
-                }
-                // for(let matchCandy of matchObject){
-                //     let candy = this.candiesArray[matchCandy.col][matchCandy.row];
-                //     console.log("candy to be cleared")
-                //     this.clearCandy(candy);
-                //     // console.log("removed position", this.candiesArray[candy.column][candy.row]);
-                // }
-            }
-        }
-    }
-
-    bringDownCandy(matchedCandy){
-        this.candiesArray[matchedCandy.column][matchedCandy.row-1]
-
     }
 
 }

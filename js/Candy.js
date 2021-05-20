@@ -1,5 +1,5 @@
 class Candy{
-    constructor(color, x, y, type='solid', row, column){
+    constructor(color, x, y, type, row, column){
         this.color = color;
         this.x = x;
         this.y = y;
