@@ -14,6 +14,8 @@ class Candy{
     }
 
     isValidMove(){
+        // grids left, right, up and down are valid moves
+
         //check for vertical move 
         if(this.x >= GRID_WIDTH * this.column && this.x <= GRID_WIDTH * (this.column + 1) &&
                 this.y >= (this.row - 1) * GRID_HEIGHT && this.y <= this.row * GRID_HEIGHT ){
@@ -46,6 +48,11 @@ class Candy{
         }
 
         return 0;
+    }
+
+    resetPosition(){
+        this.x = this.column * GRID_WIDTH + CANDY_PADDING;
+        this.y = this.row * GRID_HEIGHT + CANDY_PADDING;
     }
 
 }
