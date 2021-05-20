@@ -103,9 +103,9 @@ class Game{
         }.bind(this);
     }
     
-    isPointContained(x, y, candyLeft, candyTop, width=CANDY_WIDTH, height=CANDY_HEIGHT){
-        if(x >= (candyLeft) && x <= (candyLeft + CANDY_PADDING + width) 
-                && y >= (candyTop + CANDY_PADDING) && y <= (candyTop + CANDY_PADDING + height)){
+    isPointContained(x, y, candyLeft, candyTop){
+        if(x >= (candyLeft) && x <= (candyLeft + CANDY_WIDTH) 
+                && y >= (candyTop) && y <= (candyTop + CANDY_HEIGHT)){
                     return true;
         }
         else{
@@ -132,7 +132,6 @@ class Game{
                 this.selectedCandy = candy;
                 this.offsetX = e.clientX - this.selectedCandy.x;
                 this.offsetY = e.clientY - this.selectedCandy.y;
-                console.log(this.selectedCandy.row, this.selectedCandy.col);
                 this.isDragging = true;
                 document.addEventListener('mousemove', this.mouseMoveHandler.bind(this));
             }
@@ -200,17 +199,17 @@ class Game{
             }
 
             else if(move === MOVE_UP){
-                swapCandyRow = this.selectedCandy.row -1;
-                candyToBeSwapped = this.placeSwappingCandy(swapCandyRow, swapCandyColumn);
-                candyToBeSwapped.row += 1;
-                this.selectedCandy.row -=1;
-            }
-
-            else if(move === MOVE_DOWN){
-                swapCandyRow = this.selectedCandy.row + 1;
+                swapCandyRow = this.selectedCandy.row +1;
                 candyToBeSwapped = this.placeSwappingCandy(swapCandyRow, swapCandyColumn);
                 candyToBeSwapped.row -= 1;
                 this.selectedCandy.row +=1;
+            }
+
+            else if(move === MOVE_DOWN){
+                swapCandyRow = this.selectedCandy.row - 1;
+                candyToBeSwapped = this.placeSwappingCandy(swapCandyRow, swapCandyColumn);
+                candyToBeSwapped.row += 1;
+                this.selectedCandy.row -=1;
             }
             
             this.resetSwappedCandiesPosition(candyToBeSwapped, swapCandyRow, swapCandyColumn);
@@ -236,7 +235,6 @@ class Game{
     clearMatchedCandies(match){
         for(let group of match){
             for(let matchObject of group){
-                console.log("matchObject", matchObject);
                 let col = matchObject[0].col;
                 let row = matchObject[0].row;
                 for(let i=0; i<matchObject.length; i++){
