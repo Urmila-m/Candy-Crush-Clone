@@ -1,6 +1,10 @@
 class CheckForMatch{
     constructor(candiesArray){
         this.candiesArray = candiesArray;
+        this.isStable = false;
+        this.clearId = undefined;
+        this.isStable = false;
+        this.score = 0;
     }
 
     checkFor3VerMatch(){ 
@@ -127,21 +131,28 @@ class CheckForMatch{
         return match;
     } 
 
-    clearMatchedCandies(match, matchType=MATCH_VER){
+    clearMatchedCandies(initial, updateScore, match, matchType=MATCH_VER){
         for(let group of match){
             for(let matchObject of group){
                 let col = matchObject[0].col;
                 let row = matchObject[0].row;
 
-                this.bringCandiesDown(row, col, matchObject.length, matchType);
+                this.bringCandiesDown(initial, updateScore, row, col, matchObject.length, matchType);
+                // console.log("after bring candies down", score);
+                
+                this.scoreBoard.innerHTML = this.score;
                 this.addNewCandies(col, matchObject.length, matchType);
             }
         }
     }
 
-    bringCandiesDown(row, col, matchObjectLength, type=MATCH_VER){
+    bringCandiesDown(initial, updateScore, row, col, matchObjectLength, type=MATCH_VER){
         if(type === MATCH_VER){
             this.candiesArray[col].splice(row, matchObjectLength);
+            if(initial === USER_CLEAR){
+                this.score += matchObjectLength;
+            }
+            // console.log(this.score);
 
             for(let k = row; k < this.candiesArray[col].length; k++){
                     this.candiesArray[col][k].row = k;
@@ -151,6 +162,10 @@ class CheckForMatch{
         else{
             for(let j=col; j<(col+matchObjectLength); j++){
                         this.candiesArray[j].splice(row, 1);
+
+                        if(initial === USER_CLEAR){
+                            this.score +=1;
+                        }
                     }
 
             for(let j=col; j<(col+matchObjectLength); j++){
@@ -160,6 +175,10 @@ class CheckForMatch{
                 }
             }
         }
+        if(initial === USER_CLEAR){
+            updateScore(this.score);
+        }
+        
     }
 
     addNewCandies(col, matchObjectLength, type=MATCH_VER){
@@ -192,14 +211,45 @@ class CheckForMatch{
         return candy;
     } 
 
-    checkAndClearAllMatches(){
-        this.clearMatchedCandies(this.checkFor5HorMatch(), MATCH_HOR);
-        this.clearMatchedCandies(this.checkFor5VerMatch());
-        this.clearMatchedCandies(this.checkFor4HorMatch(), MATCH_HOR);
-        this.clearMatchedCandies(this.checkFor4VerMatch());
-        this.clearMatchedCandies(this.checkFor3HorMatch(), MATCH_HOR);
-        this.clearMatchedCandies(this.checkFor3VerMatch());
-        
+    checkAndClearAllMatches(initial, updateScore){
+        console.log("clear candies iteration");
+        let mh5;
+        let mv5;
+        let mh4;
+        let mv4;
+        let mv3;
+        let mh3;
+     
+        if(!this.isStable){
+            mh5 = this.checkFor5HorMatch();
+            mv5 = this.checkFor5VerMatch();
+            mh4 = this.checkFor4HorMatch();
+            mv4 = this.checkFor4VerMatch();
+            mv3 = this.checkFor3VerMatch();
+            mh3 = this.checkFor3HorMatch();
+            this.clearMatchedCandies(initial, updateScore, mh5, MATCH_HOR);
+            this.clearMatchedCandies(initial, updateScore, mv5);
+            this.clearMatchedCandies(initial, updateScore, mh4, MATCH_HOR);
+            this.clearMatchedCandies(initial, updateScore, mv4)
+            this.clearMatchedCandies(initial, updateScore, mh3, MATCH_HOR);
+            this.clearMatchedCandies(initial, updateScore, mv3);
+
+            if(mv5.length === 0 && mh4.length === 0 && mh5.length === 0 && mh3.length === 0 && mv4.length === 0 && mv3.length === 0){
+                console.log("stop the execution");
+                this.isStable = true;
+                clearInterval(this.clearId);
+                // cancelAnimationFrame(this.clearId);
+            }
+            // else{
+            //     this.clearId = requestAnimationFrame(this.checkAndClearAllMatches.bind(this));
+            // }
+        }
+    };
+
+    clearCandiesUntilStable(score, scoreBoard, initial, updateScore){
+        this.score = score;
+        this.scoreBoard = scoreBoard;
+        this.clearId = setInterval(()=>{this.checkAndClearAllMatches(initial, updateScore)}, 100);
     }
 
     removeRepeatedGroups(group, groupType){

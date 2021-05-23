@@ -3,9 +3,9 @@ class Game{
         this.init();
         this.drawGrid();
         this.loadCandies();
+        new CheckForMatch(this.candiesArray).clearCandiesUntilStable(this.score, this.scoreBoard, INITIAL_CLEAR);
         this.addEventListeners();
         this.paintCanvas();
-
     }
 
     init(){
@@ -19,6 +19,8 @@ class Game{
         this.offsetX = 0;
         this.offsetY = 0;
         this.move = 0;
+        this.score = 0;
+        this.scoreBoard = document.getElementById('score');
     }
 
     drawGrid(){
@@ -124,15 +126,28 @@ class Game{
     }  
 
     mouseUpHandler(e){
-        new SwapCandy(this.selectedCandy, this.candiesArray).swapCandies(this.move);
-        // this.swapCandies(this.move);
+        let swap = new SwapCandy(this.selectedCandy, this.candiesArray).swapCandies(this.move);
+        console.log("swap", swap);
         this.isDragging = false;
-        this.selectedCandy = null;
         this.offsetX = 0;
         this.offsetY = 0;
         document.removeEventListener('mousemove', this.mouseMoveHandler.bind(this));
-        let checkForMatch = new CheckForMatch(this.candiesArray);
-        checkForMatch.checkAndClearAllMatches();
+
+        if(swap){
+            let checkForMatch = new CheckForMatch(this.candiesArray);
+            checkForMatch.clearCandiesUntilStable(this.score, this.scoreBoard, USER_CLEAR, this.updateScore.bind(this));
+        }
+        else{
+            this.selectedCandy.resetPosition();
+            console.log(this.candiesArray);
+        }
+        
+        this.selectedCandy = null;
+
+    }
+
+    updateScore(score){
+        this.score = score;
     }
 
     mouseMoveHandler(e){

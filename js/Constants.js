@@ -128,3 +128,5 @@ const MOVE_RIGHT = 4;
 const DONT_MOVE = 5;
 const MATCH_HOR = 6;
 const MATCH_VER = 7;
+const INITIAL_CLEAR = 8;
+const USER_CLEAR = 9;
