@@ -109,9 +109,11 @@ const sprite = {
             'y': 601
         },
     },
-    'color_bomb':{
-        'x': 78,
-        'y': 784
+    'all_color':{
+        'color_bomb':{
+            'x': 78,
+            'y': 784
+        }
     }
 };
 

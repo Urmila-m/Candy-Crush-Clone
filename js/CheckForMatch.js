@@ -138,40 +138,83 @@ class CheckForMatch{
                 let row = matchObject[0].row;
 
                 this.bringCandiesDown(initial, updateScore, row, col, matchObject.length, matchType);
-                // console.log("after bring candies down", score);
-                
                 this.scoreBoard.innerHTML = this.score;
-                this.addNewCandies(col, matchObject.length, matchType);
+                this.addNewCandies(col, matchObject.length, initial, matchType);
             }
         }
     }
 
     bringCandiesDown(initial, updateScore, row, col, matchObjectLength, type=MATCH_VER){
         if(type === MATCH_VER){
-            this.candiesArray[col].splice(row, matchObjectLength);
+            if(matchObjectLength === 4 && initial === USER_CLEAR){
+                this.candiesArray[col][row].type = "hstriped";
+                this.candiesArray[col].splice(row+1, matchObjectLength-1);
+            }
+            // else if(matchObjectLength === 5){
+            //     this.candiesArray[col][row].type = "color_bomb";
+            //     this.candiesArray[col][row].color = "all_color";
+            //     this.candiesArray[col].splice(row+1, matchObjectLength-1);
+            // }
+            else{
+                this.candiesArray[col].splice(row, matchObjectLength);
+            }
             if(initial === USER_CLEAR){
                 this.score += matchObjectLength;
             }
-            // console.log(this.score);
 
             for(let k = row; k < this.candiesArray[col].length; k++){
+                // if(matchObjectLength === 4 || matchObjectLength === 5){
+                if(matchObjectLength === 4 && initial === USER_CLEAR){
+                    if(k >= row+1){
+                        this.candiesArray[col][k].row = k;
+                        this.candiesArray[col][k].resetPosition();
+                    }
+                }
+                else{
                     this.candiesArray[col][k].row = k;
                     this.candiesArray[col][k].resetPosition();
                 }
+            }
         }
         else{
             for(let j=col; j<(col+matchObjectLength); j++){
-                        this.candiesArray[j].splice(row, 1);
-
-                        if(initial === USER_CLEAR){
-                            this.score +=1;
-                        }
+                if(j === col){
+                    if(matchObjectLength === 4 && initial === USER_CLEAR){
+                        this.candiesArray[j][row].type = "vstriped";
                     }
+                    // else if(matchObjectLength === 5){
+                    //     this.candiesArray[j][row].color = "all_color";
+                    //     this.candiesArray[j][row].type = "candy_bomb";
+                    // }
+                    else{
+                        this.candiesArray[j].splice(row, 1);
+                    }
+                }
+                else{
+                        this.candiesArray[j].splice(row, 1);
+                }
+
+                if(initial === USER_CLEAR){
+                    this.score +=1;
+                }
+
+            }
 
             for(let j=col; j<(col+matchObjectLength); j++){
                 for(let i=row; i<this.candiesArray[j].length; i++){
-                    this.candiesArray[j][i].row = i;
-                    this.candiesArray[j][i].resetPosition();
+                    // if(matchObjectLength === 4 || matchObjectLength === 5){
+                    if(matchObjectLength === 4 && initial === USER_CLEAR){
+                        if(j !== col){
+                            this.candiesArray[j][i].row = i;
+                            this.candiesArray[j][i].resetPosition();
+                        }
+                    }
+                    else{
+                        this.candiesArray[j][i].row = i;
+                        this.candiesArray[j][i].resetPosition();
+
+                    }
+                    
                 }
             }
         }
@@ -181,10 +224,11 @@ class CheckForMatch{
         
     }
 
-    addNewCandies(col, matchObjectLength, type=MATCH_VER){
+    addNewCandies(col, matchObjectLength, initial, type=MATCH_VER){
         if(type === MATCH_VER){
             for(let k=this.candiesArray[col].length; k<8; k++){
-                let candyObj = this.chooseRandomCandy();
+                let candyObj;
+                candyObj = this.chooseRandomCandy();
                 let candy = new Candy(candyObj.color,0, 0, candyObj.type, k, col);
                 candy.resetPosition();
                 this.candiesArray[col].push(candy);
@@ -192,15 +236,38 @@ class CheckForMatch{
         }
         else{
             for(let j=col; j<(col+matchObjectLength); j++){
-                let candyObj = this.chooseRandomCandy();
+                let candyObj;
+                if (j === col){
+                    if(initial === USER_CLEAR){
+                        if(matchObjectLength !== 4){
+                            candyObj = this.chooseRandomCandy();
+                        } 
+                    }
+                    else{
+                        candyObj = this.chooseRandomCandy();
+                    }
+                }
+                else{
+                    candyObj = this.chooseRandomCandy();
+                }
 
                 // new candy always gets pushed to the top, i.e. row = 7
-                let candy = new Candy(candyObj.color, 0, 0, candyObj.type, 7, j);
-                candy.resetPosition();
-                this.candiesArray[j].push(candy);
+                if(candyObj !== undefined){
+                    let candy = new Candy(candyObj.color, 0, 0, candyObj.type, 7, j);
+                    candy.resetPosition();
+                    this.candiesArray[j].push(candy);
+                }
             }
         }
     } 
+
+    getCandy(color, type){
+        let candy_obj = sprite[color];
+        let candy = candy_obj[type];
+        candy.type = type;
+        candy.color = color;
+        return candy;
+    }
     
     chooseRandomCandy(type='solid'){
         let candy_index = Math.floor(Math.random()*5);
@@ -222,27 +289,24 @@ class CheckForMatch{
      
         if(!this.isStable){
             mh5 = this.checkFor5HorMatch();
-            mv5 = this.checkFor5VerMatch();
-            mh4 = this.checkFor4HorMatch();
-            mv4 = this.checkFor4VerMatch();
-            mv3 = this.checkFor3VerMatch();
-            mh3 = this.checkFor3HorMatch();
             this.clearMatchedCandies(initial, updateScore, mh5, MATCH_HOR);
+            mv5 = this.checkFor5VerMatch();
             this.clearMatchedCandies(initial, updateScore, mv5);
+            mh4 = this.checkFor4HorMatch();
             this.clearMatchedCandies(initial, updateScore, mh4, MATCH_HOR);
+            mv4 = this.checkFor4VerMatch();
             this.clearMatchedCandies(initial, updateScore, mv4)
-            this.clearMatchedCandies(initial, updateScore, mh3, MATCH_HOR);
+            mv3 = this.checkFor3VerMatch();
             this.clearMatchedCandies(initial, updateScore, mv3);
+            mh3 = this.checkFor3HorMatch();
+            this.clearMatchedCandies(initial, updateScore, mh3, MATCH_HOR);
 
             if(mv5.length === 0 && mh4.length === 0 && mh5.length === 0 && mh3.length === 0 && mv4.length === 0 && mv3.length === 0){
+            // if(mv5.length === 0 && mh5.length === 0){
                 console.log("stop the execution");
                 this.isStable = true;
                 clearInterval(this.clearId);
-                // cancelAnimationFrame(this.clearId);
             }
-            // else{
-            //     this.clearId = requestAnimationFrame(this.checkAndClearAllMatches.bind(this));
-            // }
         }
     };
 

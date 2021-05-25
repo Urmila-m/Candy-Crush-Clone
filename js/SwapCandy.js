@@ -92,9 +92,11 @@ class SwapCandy{
 
             let checkMatch = new CheckForMatch(candiesArrayCopy);
             if (checkMatch.checkFor3VerMatch().length === 0 && checkMatch.checkFor3HorMatch().length === 0){
+                candiesArrayCopy = null;
                 return false;
             }
             else{
+                candiesArrayCopy = null;
                 return true;
             }
         }
