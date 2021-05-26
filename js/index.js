@@ -20,6 +20,8 @@ class Game{
         this.offsetY = 0;
         this.move = 0;
         this.score = 0;
+        this.targetScore = 1000;
+        this.noOfMoves = 15;
         this.scoreBoard = document.getElementById('score');
     }
 
@@ -134,6 +136,7 @@ class Game{
         document.removeEventListener('mousemove', this.mouseMoveHandler.bind(this));
 
         if(swap){
+            this.noOfMoves -= 1;
             let checkForMatch = new CheckForMatch(this.candiesArray);
             checkForMatch.clearCandiesUntilStable(this.score, this.scoreBoard, USER_CLEAR, this.updateScore.bind(this));
         }
