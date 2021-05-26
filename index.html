@@ -18,10 +18,17 @@
     <div id="game-block">
       <img src="images/start_screen.png" class="bg-overlay"/>
       <div class="content"> 
+
         <div id="game-over-screen">
           <img id="out-of-moves" src="images/out_of_moves.PNG"/>
           <img id="retry" src="images/retry_transparent_bg.png"/>
+        </div> 
+        
+        <div id="win-screen">
+          <img id="level-completed" src="images/level_completed.PNG"/>
+          <img id="restart" src="images/play_transparent_bg.png"/>
         </div>
+       
         <canvas id="canvas" width="400px" height="400px">
         </canvas>
         <div class="info-wrapper">
@@ -29,7 +36,6 @@
             <h3>Target Score:</h3>
             <h3 id="target-score">150</h3>
           </div>
-
           <div class="info">
             <h3>High Score:</h3>
             <h3 id="high-score"></h3>
@@ -50,7 +56,8 @@
     <div id="start-screen">
       <img id="start-screen-bg-img" src="images/start_screen.png"/>
       <img id="play-img" src="images/play.png"/>
-    </div>
+    </div> 
+   
     
   </div>
   <script src="js/CheckForMatch.js"></script>

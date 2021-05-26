@@ -1,9 +1,10 @@
 class Game{
-    constructor(targetScore, noOfMoves, gameOver){
+    constructor(targetScore, noOfMoves, gameOver, gameCompleted){
         this.targetScore = targetScore;
         this.noOfMoves = noOfMoves;
         this.highScore = localStorage.getItem("high-score")?localStorage.getItem("high-score"):0;
         this.gameOver = gameOver;
+        this.gameCompleted = gameCompleted;
         this.init();
         this.drawGrid();
         this.loadCandies();
@@ -148,30 +149,35 @@ class Game{
             document.removeEventListener('mousemove', this.mouseMoveHandler.bind(this));
 
             if(swap){
-                console.log(this.noOfMoves);
                 this.noOfMoves -= 1;
                 this.noOfMovesBoard.innerHTML = this.noOfMoves;
                 if (this.noOfMoves <= 0) {
-                    console.log("no of moves", this.noOfMoves);
                     if (this.targetScore>this.score) {
                         cancelAnimationFrame(this.animId);
                         if (this.score > this.highScore) {
                             localStorage.setItem("high-score", this.score);
                         }
                         this.gameOver(this.score);
+                        return;
                     }
                 }
-                else{
-                    if (this.score >= this.targetScore){
-                        console.log("You win");
+
+                if (this.score >= this.targetScore){
+
+                    console.log("you winnnnnn!!!!!");
+                    cancelAnimationFrame(this.animId);
+                    if (this.score > this.highScore) {
+                        localStorage.setItem("high-score", this.score);
                     }
+                    this.gameCompleted();
+                    return;
                 }
+
                 let checkForMatch = new CheckForMatch(this.candiesArray);
                 checkForMatch.clearCandiesUntilStable(this.score, this.scoreBoard, USER_CLEAR, this.updateScore.bind(this));
             }
             else{
                 this.selectedCandy.resetPosition();
-                console.log(this.candiesArray);
             }
             
             this.selectedCandy = null;

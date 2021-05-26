@@ -159,21 +159,14 @@ class CheckForMatch{
                 if (stripedCandy.type === "vstriped") {
                     for(let candy of this.candiesArray[stripedCandy.column]){
                         if (candy.type === "hstriped") {
-                            for(let column of this.candiesArray){
-                                column.splice(candy.row, 1);
-                            }
-                            this.score += 8;
-                            for(let i=0; i<this.candiesArray.length; i++){
-                                for(let j=candy.row; j<this.candiesArray[i].length; j++){
-                                    this.candiesArray[i][j].row = j;
-                                    this.candiesArray[i][j].resetPosition();
-                                }
-                            }
+                            this.spliceCandiesInRow(candy.row);
+                            this.resetPosUpperCandiesInRow(candy.row);
                         }
                     }
                     this.candiesArray[stripedCandy.column] = [];
                     this.score += 8; 
                 }
+                // striped candy is horizontally striped
                 else{
                     for(let column of this.candiesArray){
                         if (this.candiesArray.findIndex(val=>val === column)!== col) {
@@ -184,6 +177,7 @@ class CheckForMatch{
                             else{
                                 column.splice(stripedCandy.row, 1);
                                 this.score += 1;
+                                // this.resetPositionUpperCandiesInRow(stripedCandy.row);
                                 for(let j=stripedCandy.row; j<column.length; j++){
                                     column[j].row = j;
                                     column[j].resetPosition();
@@ -191,25 +185,18 @@ class CheckForMatch{
                             }
                         }
                     }
-                    this.candiesArray[col].splice(row, matchObjectLength);
-                    for(let j=row; j<this.candiesArray[col].length;j++){
-                        this.candiesArray[col][j].row = j;
-                        this.candiesArray[col][j].resetPosition();
-                    }
-
+                    this.spliceCandiesInCol(row, col, matchObjectLength);
+                    this.resetPosUpperCandiesInCol(row, col);
                 }
             }
             // striped candy not present in the match
             else{
                 if(matchObjectLength === 4 && initial === USER_CLEAR){
                     this.candiesArray[col][row].type = "hstriped";
-                    this.candiesArray[col].splice(row+1, matchObjectLength-1);
+                    this.spliceCandiesInCol(row+1, col, matchObjectLength - 1, initial);
                 }
                 else{
-                    this.candiesArray[col].splice(row, matchObjectLength);
-                }
-                if(initial === USER_CLEAR){
-                    this.score += matchObjectLength;
+                    this.spliceCandiesInCol(row, col, matchObjectLength, initial);
                 }
 
                 for(let k = row; k < this.candiesArray[col].length; k++){
@@ -233,22 +220,13 @@ class CheckForMatch{
                     for(let candy of this.candiesArray[stripedCandy.column]){
                         if(candy !== stripedCandy){
                             if (candy.type === "hstriped") {
-                                for(let column of this.candiesArray){
-                                    column.splice(candy.row, 1);
-                                    this.score += 1;
-                                }
-                                for(let column of this.candiesArray){
-                                    for(let j=candy.row; j<column.length; j++){
-                                        column[j].row = j;
-                                        column[j].resetPosition();
-                                    }
-                                }
+                                this.spliceCandiesInRow(candy.row);
+                                this.resetPosUpperCandiesInRow(candy.row);
                             }
                         }
                     }
 
                     this.candiesArray[stripedCandy.column] = [];
-                    console.log('after clearing col', this.candiesArray);
                     this.score += 8;
                     
                     for(let j=col; j<(col+matchObjectLength); j++){
@@ -257,13 +235,9 @@ class CheckForMatch{
                             this.score+=1;
                         }
                     }
-                    console.log("after clearing mached candies", this.candiesArray);
                     for(let j=col; j<(col+matchObjectLength); j++){
-                        if (j !== stripedCandy.column) {
-                            for(let i=row; i<this.candiesArray[j].length; i++){
-                                this.candiesArray[j][i].row = i;
-                                this.candiesArray[j][i].resetPosition();
-                            }
+                        if (j !== stripedCandy.column){
+                            this.resetPosUpperCandiesInCol(row, j);
                         }
                     }
                 }
@@ -285,10 +259,7 @@ class CheckForMatch{
 
                     for(let column of this.candiesArray){
                         if(column[stripedCandy.row]){
-                            for(let i=stripedCandy.row; i<column.length; i++){
-                                column[i].row = i;
-                                column[i].resetPosition();
-                            }
+                            this.resetPosUpperCandiesInCol(stripedCandy.row, this.candiesArray.findIndex(val=> val===column));
                         }
                     }
                 }
@@ -336,6 +307,36 @@ class CheckForMatch{
         if(initial === USER_CLEAR){
             updateScore(this.score);
         }
+    }
+    
+    spliceCandiesInRow(row){
+        for(let column of this.candiesArray){
+            column.splice(row, 1);
+            this.score += 1;
+        }
+    }
+
+    spliceCandiesInCol(row, col, matchObjectLength, initial){
+        this.candiesArray[col].splice(row, matchObjectLength);
+        if (initial === USER_CLEAR) {
+            this.score += matchObjectLength;
+        }
+    }
+
+    resetPosUpperCandiesInRow(row){
+        for(let i=0; i<this.candiesArray.length; i++){
+            for(let j=row; j<this.candiesArray[i].length; j++){
+                this.candiesArray[i][j].row = j;
+                this.candiesArray[i][j].resetPosition();
+            }
+        }
+    }
+
+    resetPosUpperCandiesInCol(row, col){
+        for(let j=row; j<this.candiesArray[col].length;j++){
+                this.candiesArray[col][j].row = j;
+                this.candiesArray[col][j].resetPosition();
+            }
     }
 
     addNewCandies(){
