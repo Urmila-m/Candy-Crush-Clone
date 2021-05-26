@@ -1,3 +1,72 @@
+body{
+    font-family: 'Press Start 2P', cursive;
+}
+
 #canvas{
     background-color: pink;
+}
+
+#game-block{
+    width: 722px;
+    display: none;
+    position: relative;
+}
+
+#start-screen{
+    /* display: none; */
+    position: relative;
+}
+
+.bg-overlay{
+    opacity: 0.3;
+    position: absolute;
+}
+
+#start-screen-bg-img{
+    position: absolute;
+}
+
+#play-img{
+    position: absolute;
+    top: 331px;
+    left: 270px;
+}
+
+.container{
+    margin: 20px auto;
+    width: 722px;
+}
+
+.info{
+    padding: 20px 0px;
+    margin-left: auto;
+}
+
+.content{
+    position: absolute;
+    display: flex;
+    padding: 20px;
+}
+
+.info-wrapper{
+    padding-left: 20px;
+}
+
+#game-over-screen{
+    display: none;
+    position: relative;
+    background-color: blueviolet;
+}
+
+#retry{
+    width: 120px;
+    position: absolute; 
+    top: 250px;
+    left: 140px;
+}
+
+#out-of-moves{
+    width: 400px;
+    position: absolute;
+    top: 120px;
 }

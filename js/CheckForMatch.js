@@ -238,7 +238,7 @@ class CheckForMatch{
                                     this.score += 1;
                                 }
                                 for(let column of this.candiesArray){
-                                    for(let j=candy.row; column.length; j++){
+                                    for(let j=candy.row; j<column.length; j++){
                                         column[j].row = j;
                                         column[j].resetPosition();
                                     }
@@ -248,6 +248,7 @@ class CheckForMatch{
                     }
 
                     this.candiesArray[stripedCandy.column] = [];
+                    console.log('after clearing col', this.candiesArray);
                     this.score += 8;
                     
                     for(let j=col; j<(col+matchObjectLength); j++){
@@ -256,6 +257,7 @@ class CheckForMatch{
                             this.score+=1;
                         }
                     }
+                    console.log("after clearing mached candies", this.candiesArray);
                     for(let j=col; j<(col+matchObjectLength); j++){
                         if (j !== stripedCandy.column) {
                             for(let i=row; i<this.candiesArray[j].length; i++){

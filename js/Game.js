@@ -1,5 +1,9 @@
 class Game{
-    constructor(){
+    constructor(targetScore, noOfMoves, gameOver){
+        this.targetScore = targetScore;
+        this.noOfMoves = noOfMoves;
+        this.highScore = localStorage.getItem("high-score")?localStorage.getItem("high-score"):0;
+        this.gameOver = gameOver;
         this.init();
         this.drawGrid();
         this.loadCandies();
@@ -10,6 +14,10 @@ class Game{
 
     init(){
         this.canvas = document.getElementById('canvas');
+        this.scoreBoard = document.getElementById('score');
+        this.noOfMovesBoard = document.getElementById('no-of-moves-left');
+        this.targetScoreBoard = document.getElementById('target-score');
+        this.highScoreBoard = document.getElementById('high-score');
         this.ctx = canvas.getContext("2d");
         this.ctx.strokeStyle = "palevioletred";
         this.ctx.lineWidth = 0.2;
@@ -20,9 +28,10 @@ class Game{
         this.offsetY = 0;
         this.move = 0;
         this.score = 0;
-        this.targetScore = 1000;
-        this.noOfMoves = 15;
-        this.scoreBoard = document.getElementById('score');
+        this.noOfMovesBoard.innerHTML = this.noOfMoves;
+        this.targetScoreBoard.innerHTML = this.targetScore;
+        this.highScoreBoard.innerHTML = this.highScore;
+        this.rect = this.canvas.getBoundingClientRect();
     }
 
     drawGrid(){
@@ -74,7 +83,7 @@ class Game{
                 this.ctx.drawImage(this.img, spriteCandy.x, spriteCandy.y, sprite.width, sprite.height, candy.x, candy.y, CANDY_WIDTH, CANDY_HEIGHT);
             }
         }
-        requestAnimationFrame(this.paintCanvas.bind(this));
+        this.animId = requestAnimationFrame(this.paintCanvas.bind(this));
     }
 
     clearCanvas(){
@@ -113,11 +122,13 @@ class Game{
     addEventListeners(){
         // for drag and drop
         document.addEventListener('mousedown', (e)=>{
-            let candy = this.checkCandyClick(e.clientX, e.clientY);
+            let x = e.clientX - this.rect.left;
+            let y = e.clientY - this.rect.top;
+            let candy = this.checkCandyClick(x, y);
             if(candy !== null){
                 this.selectedCandy = candy;
-                this.offsetX = e.clientX - this.selectedCandy.x;
-                this.offsetY = e.clientY - this.selectedCandy.y;
+                this.offsetX = x - this.selectedCandy.x;
+                this.offsetY = y - this.selectedCandy.y;
                 this.isDragging = true;
                 document.addEventListener('mousemove', this.mouseMoveHandler.bind(this));
             }
@@ -128,25 +139,43 @@ class Game{
     }  
 
     mouseUpHandler(e){
-        let swap = new SwapCandy(this.selectedCandy, this.candiesArray).swapCandies(this.move);
-        console.log("swap", swap);
-        this.isDragging = false;
-        this.offsetX = 0;
-        this.offsetY = 0;
-        document.removeEventListener('mousemove', this.mouseMoveHandler.bind(this));
+        if (this.selectedCandy) {
+            let swap = new SwapCandy(this.selectedCandy, this.candiesArray).swapCandies(this.move);
+            console.log("swap", swap);
+            this.isDragging = false;
+            this.offsetX = 0;
+            this.offsetY = 0;
+            document.removeEventListener('mousemove', this.mouseMoveHandler.bind(this));
 
-        if(swap){
-            this.noOfMoves -= 1;
-            let checkForMatch = new CheckForMatch(this.candiesArray);
-            checkForMatch.clearCandiesUntilStable(this.score, this.scoreBoard, USER_CLEAR, this.updateScore.bind(this));
+            if(swap){
+                console.log(this.noOfMoves);
+                this.noOfMoves -= 1;
+                this.noOfMovesBoard.innerHTML = this.noOfMoves;
+                if (this.noOfMoves <= 0) {
+                    console.log("no of moves", this.noOfMoves);
+                    if (this.targetScore>this.score) {
+                        cancelAnimationFrame(this.animId);
+                        if (this.score > this.highScore) {
+                            localStorage.setItem("high-score", this.score);
+                        }
+                        this.gameOver(this.score);
+                    }
+                }
+                else{
+                    if (this.score >= this.targetScore){
+                        console.log("You win");
+                    }
+                }
+                let checkForMatch = new CheckForMatch(this.candiesArray);
+                checkForMatch.clearCandiesUntilStable(this.score, this.scoreBoard, USER_CLEAR, this.updateScore.bind(this));
+            }
+            else{
+                this.selectedCandy.resetPosition();
+                console.log(this.candiesArray);
+            }
+            
+            this.selectedCandy = null;
         }
-        else{
-            this.selectedCandy.resetPosition();
-            console.log(this.candiesArray);
-        }
-        
-        this.selectedCandy = null;
-
     }
 
     updateScore(score){
@@ -155,10 +184,13 @@ class Game{
 
     mouseMoveHandler(e){
         if(this.isDragging){
-            
-            // check for mouse movement for right edged candies and bottom row candies
-            if(((e.clientX - this.offsetX + CANDY_WIDTH + CANDY_PADDING) > this.canvas.offsetWidth)
-                || ((e.clientY - this.offsetY + CANDY_HEIGHT + CANDY_PADDING) > this.canvas.offsetHeight)){
+            let x = e.clientX - this.rect.left;
+            let y = e.clientY - this.rect.top;
+            // check for mouse movement for right/left edged candies and bottom/top row candies
+            if(((x - this.offsetX + CANDY_WIDTH + CANDY_PADDING) > this.canvas.offsetWidth)
+                || ((y - this.offsetY + CANDY_HEIGHT + CANDY_PADDING) > this.canvas.offsetHeight)
+                || (x - this.offsetX) < 0
+                || (y - this.offsetY) < 0){
 
                     console.log("edge invalid move");
                     this.isDragging = false;
@@ -171,7 +203,7 @@ class Game{
             let move = this.selectedCandy.isValidMove();
             if(move){
                 this.move = move;
-                this.selectedCandy.setPosition(e.clientX - this.offsetX, e.clientY - this.offsetY);
+                this.selectedCandy.setPosition(x - this.offsetX, y - this.offsetY);
             }
             else{
                 console.log("invalid move");
@@ -180,5 +212,3 @@ class Game{
         }
     }
 }
-
-new Game();

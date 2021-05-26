@@ -9,21 +9,55 @@
   <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/layout.css">
-
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 
 <body>
-    <canvas id="canvas" width="400px" height="400px">
-    </canvas>
-    <div>
-      <h3>Score: </h3>
-      <h3 id="score">0</h3>
-    
+  <div class="container">
+    <div id="game-block">
+      <img src="images/start_screen.png" class="bg-overlay"/>
+      <div class="content"> 
+        <div id="game-over-screen">
+          <img id="out-of-moves" src="images/out_of_moves.PNG"/>
+          <img id="retry" src="images/retry_transparent_bg.png"/>
+        </div>
+        <canvas id="canvas" width="400px" height="400px">
+        </canvas>
+        <div class="info-wrapper">
+          <div class="info">
+            <h3>Target Score:</h3>
+            <h3 id="target-score">150</h3>
+          </div>
+
+          <div class="info">
+            <h3>High Score:</h3>
+            <h3 id="high-score"></h3>
+          </div>
+            
+          <div class="info">
+            <h3>Moves left:</h3>
+            <h3 id="no-of-moves-left">15</h3>
+          </div>
+
+          <div class="info">
+            <h3>Score: </h3>
+            <h3 id="score">0</h3>
+          </div>
+        </div>
+      </div>
+    </div> 
+    <div id="start-screen">
+      <img id="start-screen-bg-img" src="images/start_screen.png"/>
+      <img id="play-img" src="images/play.png"/>
     </div>
-    <script src="js/CheckForMatch.js"></script>
-    <script src="js/SwapCandy.js"></script>
-    <script src="js/Candy.js"></script>
-    <script src="js/Constants.js"></script>
-  <script src="js/index.js"></script>
+    
+  </div>
+  <script src="js/CheckForMatch.js"></script>
+  <script src="js/SwapCandy.js"></script>
+  <script src="js/Candy.js"></script>
+  <script src="js/Constants.js"></script>
+  <script src="js/Game.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
