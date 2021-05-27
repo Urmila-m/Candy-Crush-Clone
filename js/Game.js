@@ -5,6 +5,7 @@ class Game{
         this.highScore = localStorage.getItem("high-score")?localStorage.getItem("high-score"):0;
         this.gameOver = gameOver;
         this.gameCompleted = gameCompleted;
+        this.speed = 40; //candy falling speed
         this.init();
         this.drawGrid();
         this.loadCandies();
@@ -19,7 +20,7 @@ class Game{
         this.noOfMovesBoard = document.getElementById('no-of-moves-left');
         this.targetScoreBoard = document.getElementById('target-score');
         this.highScoreBoard = document.getElementById('high-score');
-        this.ctx = canvas.getContext("2d");
+        this.ctx = this.canvas.getContext("2d");
         this.ctx.strokeStyle = "palevioletred";
         this.ctx.lineWidth = 0.2;
         this.candiesArray = [];
@@ -32,12 +33,12 @@ class Game{
         this.noOfMovesBoard.innerHTML = this.noOfMoves;
         this.targetScoreBoard.innerHTML = this.targetScore;
         this.highScoreBoard.innerHTML = this.highScore;
+        this.scoreBoard.innerHTML = this.score;
         this.rect = this.canvas.getBoundingClientRect();
     }
 
     drawGrid(){
         for (let i = 0; i <= 8; i++) {
-
             const x = i*GRID_WIDTH;
             this.ctx.moveTo(x, 0);
             this.ctx.lineTo(x, canvas.height);
@@ -68,7 +69,7 @@ class Game{
                 const y = yCell * GRID_HEIGHT;
                 this.ctx.drawImage(this.img, candy.x, candy.y, sprite.width, sprite.height, x+CANDY_PADDING, y+CANDY_PADDING, CANDY_WIDTH, CANDY_HEIGHT);
 
-                let candyDrawn = new Candy(candy.color, x+CANDY_PADDING, y+CANDY_PADDING, candy.type, 7 - yCell, xCell);
+                let candyDrawn = new Candy(candy.color, x+CANDY_PADDING, y+CANDY_PADDING, candy.type, 7 - yCell, xCell, false);
                 columnCandies.push(candyDrawn);
             }
             this.candiesArray.push(columnCandies);
@@ -81,6 +82,14 @@ class Game{
         for (let column of this.candiesArray){
             for(let candy of column){
                 let spriteCandy = sprite[candy.color][candy.type];
+                if (candy.isMoving) {
+                    if (! candy.hasReachedDestination()) {
+                        candy.y = Math.min(candy.y+this.speed, ((7-candy.row) * GRID_HEIGHT + CANDY_PADDING));
+                    }
+                    else{
+                        candy.isMoving = false;
+                    }
+                }
                 this.ctx.drawImage(this.img, spriteCandy.x, spriteCandy.y, sprite.width, sprite.height, candy.x, candy.y, CANDY_WIDTH, CANDY_HEIGHT);
             }
         }
@@ -149,32 +158,8 @@ class Game{
             document.removeEventListener('mousemove', this.mouseMoveHandler.bind(this));
 
             if(swap){
-                this.noOfMoves -= 1;
-                this.noOfMovesBoard.innerHTML = this.noOfMoves;
-                if (this.noOfMoves <= 0) {
-                    if (this.targetScore>this.score) {
-                        cancelAnimationFrame(this.animId);
-                        if (this.score > this.highScore) {
-                            localStorage.setItem("high-score", this.score);
-                        }
-                        this.gameOver(this.score);
-                        return;
-                    }
-                }
-
-                if (this.score >= this.targetScore){
-
-                    console.log("you winnnnnn!!!!!");
-                    cancelAnimationFrame(this.animId);
-                    if (this.score > this.highScore) {
-                        localStorage.setItem("high-score", this.score);
-                    }
-                    this.gameCompleted();
-                    return;
-                }
-
                 let checkForMatch = new CheckForMatch(this.candiesArray);
-                checkForMatch.clearCandiesUntilStable(this.score, this.scoreBoard, USER_CLEAR, this.updateScore.bind(this));
+                checkForMatch.clearCandiesUntilStable(this.score, this.scoreBoard, USER_CLEAR, this.updateScore.bind(this), this.targetScore, this.gameCompleted, this.onCandiesClear.bind(this));
             }
             else{
                 this.selectedCandy.resetPosition();
@@ -184,8 +169,25 @@ class Game{
         }
     }
 
+    onCandiesClear(){
+        this.noOfMoves -= 1;
+        console.log("moves", this.noOfMoves);
+        this.noOfMovesBoard.innerHTML = this.noOfMoves;
+        if (this.noOfMoves <= 0) {
+            if (this.targetScore>this.score) {
+                cancelAnimationFrame(this.animId);
+                if (this.score > this.highScore) {
+                    localStorage.setItem("high-score", this.score);
+                }
+                document.removeEventListener('mouseup', this.mouseUpHandler.bind(this));
+                this.gameOver();
+            }
+        }
+    }
+
     updateScore(score){
         this.score = score;
+        console.log("score", this.score);
     }
 
     mouseMoveHandler(e){

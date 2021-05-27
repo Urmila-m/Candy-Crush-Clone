@@ -1,11 +1,13 @@
 class Candy{
-    constructor(color, x, y, type, row, column){
+    constructor(color, x, y, type, row, column, isMoving){
         this.color = color;
         this.x = x;
         this.y = y;
         this.type = type;
         this.row = row;
         this.column = column;
+        this.isMoving = isMoving;
+        this.speed = 40;
     }
 
     setPosition(x, y){
@@ -55,4 +57,12 @@ class Candy{
         this.y = (7 - this.row) * GRID_HEIGHT + CANDY_PADDING;
     }
 
+    hasReachedDestination(){
+        if (this.y === (7 - this.row) * GRID_HEIGHT + CANDY_PADDING) {
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 }

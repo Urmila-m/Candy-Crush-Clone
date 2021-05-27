@@ -30,7 +30,7 @@ class CheckForMatch{
     checkFor3HorMatch(){
         let match = [];
 
-        for(let i=0; i<this.candiesArray[0].length; i++){
+        for(let i=0; i<8; i++){
             let group = [];
             for(let j=0; j < this.candiesArray.length-2; j++){
                 if(this.candiesArray[j][i].color === this.candiesArray[j+1][i].color && 
@@ -68,7 +68,7 @@ class CheckForMatch{
     checkFor4HorMatch(){
         let match = [];
 
-        for(let i=0; i<this.candiesArray[0].length; i++){
+        for(let i=0; i<8; i++){
             let group = [];
             for(let j=0; j < this.candiesArray.length-3; j++){
                 if(this.candiesArray[j][i].color === this.candiesArray[j+1][i].color && 
@@ -111,7 +111,7 @@ class CheckForMatch{
     checkFor5HorMatch(){
         let match = [];
 
-        for(let i=0; i<this.candiesArray[0].length; i++){
+        for(let i=0; i<8; i++){
             let group = [];
             for(let j=0; j < this.candiesArray.length-4; j++){
                 if(this.candiesArray[j][i].color === this.candiesArray[j+1][i].color && 
@@ -177,10 +177,9 @@ class CheckForMatch{
                             else{
                                 column.splice(stripedCandy.row, 1);
                                 this.score += 1;
-                                // this.resetPositionUpperCandiesInRow(stripedCandy.row);
                                 for(let j=stripedCandy.row; j<column.length; j++){
                                     column[j].row = j;
-                                    column[j].resetPosition();
+                                    column[j].isMoving = true;
                                 }
                             }
                         }
@@ -203,12 +202,12 @@ class CheckForMatch{
                     if(matchObjectLength === 4 && initial === USER_CLEAR){
                         if(k >= row+1){
                             this.candiesArray[col][k].row = k;
-                            this.candiesArray[col][k].resetPosition();
+                            this.candiesArray[col][k].isMoving = true;
                         }
                     }
                     else{
                         this.candiesArray[col][k].row = k;
-                        this.candiesArray[col][k].resetPosition();
+                        this.candiesArray[col][k].isMoving = true;
                     }
                 }
             }
@@ -290,12 +289,12 @@ class CheckForMatch{
                         if(matchObjectLength === 4 && initial === USER_CLEAR){
                             if(j !== col){
                                 this.candiesArray[j][i].row = i;
-                                this.candiesArray[j][i].resetPosition();
+                                this.candiesArray[j][i].isMoving = true;
                             }
                         }
                         else{
                             this.candiesArray[j][i].row = i;
-                            this.candiesArray[j][i].resetPosition();
+                            this.candiesArray[j][i].isMoving = true;
 
                         }
                         
@@ -327,7 +326,7 @@ class CheckForMatch{
         for(let i=0; i<this.candiesArray.length; i++){
             for(let j=row; j<this.candiesArray[i].length; j++){
                 this.candiesArray[i][j].row = j;
-                this.candiesArray[i][j].resetPosition();
+                this.candiesArray[i][j].isMoving = true;
             }
         }
     }
@@ -335,17 +334,20 @@ class CheckForMatch{
     resetPosUpperCandiesInCol(row, col){
         for(let j=row; j<this.candiesArray[col].length;j++){
                 this.candiesArray[col][j].row = j;
-                this.candiesArray[col][j].resetPosition();
+                this.candiesArray[col][j].isMoving = true;
             }
     }
 
     addNewCandies(){
-        for(let column of this.candiesArray){
-            for(let i=column.length; i<8; i++){
+        for(let j=0; j<8; j++){
+            let len = this.candiesArray[j].length;
+            for(let i=this.candiesArray[j].length; i<8; i++){
                 let candyObj = this.chooseRandomCandy();
-                let candy = new Candy(candyObj.color, 0, 0, candyObj.type, i, this.candiesArray.findIndex(val=> val===column));
-                candy.resetPosition();
-                column.push(candy);
+                // the candy to be filled in the first vacant row of a column will be situated just above the canvas
+                let startY = (7-(i+(8-len))) * GRID_HEIGHT;
+                let startX = j * GRID_WIDTH + CANDY_PADDING;
+                let candy = new Candy(candyObj.color, startX, startY, candyObj.type, i, j, true);
+                this.candiesArray[j].push(candy);
             }
         }
     } 
@@ -367,7 +369,7 @@ class CheckForMatch{
         return candy;
     } 
 
-    checkAndClearAllMatches(initial, updateScore){
+    checkAndClearAllMatches(initial, updateScore, targetScore, gameCompleted, onCandiesClear){
         console.log("clear candies iteration");
         let mh5;
         let mv5;
@@ -392,17 +394,31 @@ class CheckForMatch{
 
             if(mv5.length === 0 && mh4.length === 0 && mh5.length === 0 && mh3.length === 0 && mv4.length === 0 && mv3.length === 0){
             // if (mv4.length === 0 || mh4.length === 0) {
-                console.log("stop the execution");
-                this.isStable = true;
+                console.log("stop the execution"); 
                 clearInterval(this.clearId);
+                if (initial === USER_CLEAR) {
+                    onCandiesClear();
+                }
+
+                if (this.score >= targetScore){
+
+                    console.log("you winnnnnn!!!!!");
+                    let highScore = localStorage.getItem("high-score")?localStorage.getItem("high-score"):0;
+                    // cancelAnimationFrame(this.animId);
+                    if (this.score > highScore) {
+                        localStorage.setItem("high-score", this.score);
+                    }
+                    gameCompleted();
+                }
+                this.isStable = true;
             }
         }
     };
 
-    clearCandiesUntilStable(score, scoreBoard, initial, updateScore){
+    clearCandiesUntilStable(score, scoreBoard, initial, updateScore, targetScore, gameCompleted, onCandiesClear){
         this.score = score;
         this.scoreBoard = scoreBoard;
-        this.clearId = setInterval(()=>{this.checkAndClearAllMatches(initial, updateScore)}, 1000);
+        this.clearId = setInterval(()=>{this.checkAndClearAllMatches(initial, updateScore, targetScore, gameCompleted, onCandiesClear)}, 1000);
     }
 
     removeRepeatedGroups(group, groupType){

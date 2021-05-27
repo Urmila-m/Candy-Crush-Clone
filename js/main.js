@@ -22,13 +22,12 @@ function gameOver(){
     game = null;
     gameOverBlock.style.display = 'block';
     retryBtn.addEventListener('click', ()=>{
-        startScreen.style.display = 'block';
-        gameBlock.style.display = 'none';
+       setStartScreen();
     });
 }
 
 function gameCompleted(){
-    console.log("game Completed Callled");
+    game = null;
     winScreen.style.display = 'block';
     restartBtn.addEventListener('click', ()=>{
         setStartScreen();
