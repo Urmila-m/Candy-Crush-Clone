@@ -5,11 +5,10 @@ class Game{
         this.highScore = localStorage.getItem("high-score")?localStorage.getItem("high-score"):0;
         this.gameOver = gameOver;
         this.gameCompleted = gameCompleted;
-        this.speed = 40; //candy falling speed
+        this.speed = 40; // speed of candies falling
         this.init();
         this.drawGrid();
         this.loadCandies();
-        new CheckForMatch(this.candiesArray).clearCandiesUntilStable(this.score, this.scoreBoard, INITIAL_CLEAR);
         this.addEventListeners();
         this.paintCanvas();
     }
@@ -75,6 +74,8 @@ class Game{
             }
             this.candiesArray.push(columnCandies);
         }
+        // remove matched candies in the beginning
+        new CheckForMatch(this.candiesArray).clearCandiesUntilStable(this.score, this.scoreBoard, INITIAL_CLEAR);
     }
 
     paintCanvas(){
@@ -172,12 +173,11 @@ class Game{
     }
 
     onCandiesClear(){
-        this.delicious.style.display = 'block';
-        setTimeout(()=>{
-            this.delicious.style.display = 'none';
-        }, 500);
+        // this.delicious.style.display = 'block';
+        // setTimeout(()=>{
+        //     this.delicious.style.display = 'none';
+        // }, 300);
         this.noOfMoves -= 1;
-        console.log("moves", this.noOfMoves);
         this.noOfMovesBoard.innerHTML = this.noOfMoves;
         if (this.noOfMoves <= 0) {
             if (this.targetScore>this.score) {
@@ -193,7 +193,6 @@ class Game{
 
     updateScore(score){
         this.score = score;
-        console.log("score", this.score);
     }
 
     mouseMoveHandler(e){

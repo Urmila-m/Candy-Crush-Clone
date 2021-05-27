@@ -7,7 +7,6 @@ class Candy{
         this.row = row;
         this.column = column;
         this.isMoving = isMoving;
-        this.speed = 40;
     }
 
     setPosition(x, y){

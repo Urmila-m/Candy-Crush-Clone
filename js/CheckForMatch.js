@@ -153,6 +153,7 @@ class CheckForMatch{
     }
 
     bringCandiesDown(initial, updateScore, row, col, matchObjectLength, stripedCandy, type=MATCH_VER){
+        console.log("bring candies down ");
         if(type === MATCH_VER){ 
             // striped candy present in the match
             if(stripedCandy){
@@ -380,6 +381,17 @@ class CheckForMatch{
         return candy;
     } 
 
+    areAllCandiesStable(){
+        for(let column of this.candiesArray){
+            for(let candy of column){
+                if (candy.isMoving) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     checkAndClearAllMatches(initial, updateScore, targetScore, gameCompleted, onCandiesClear){
         console.log("clear candies iteration");
         let mh5;
@@ -388,7 +400,7 @@ class CheckForMatch{
         let mv4;
         let mv3;
         let mh3;
-     
+    
         if(!this.isStable){
             mh5 = this.checkFor5HorMatch();
             this.clearMatchedCandies(initial, updateScore, mh5, MATCH_HOR);
@@ -404,9 +416,9 @@ class CheckForMatch{
             this.clearMatchedCandies(initial, updateScore, mh3, MATCH_HOR);
 
             if(mv5.length === 0 && mh4.length === 0 && mh5.length === 0 && mh3.length === 0 && mv4.length === 0 && mv3.length === 0){
-            // if (mv5.length === 0 || mh5.length === 0) {
+            // if (mv4.length === 0 || mh4.length === 0) {
                 console.log("stop the execution"); 
-                clearInterval(this.clearId);
+                // clearInterval(this.clearId);
                 if (initial === USER_CLEAR) {
                     onCandiesClear();
                 }
@@ -429,7 +441,11 @@ class CheckForMatch{
     clearCandiesUntilStable(score, scoreBoard, initial, updateScore, targetScore, gameCompleted, onCandiesClear){
         this.score = score;
         this.scoreBoard = scoreBoard;
-        this.clearId = setInterval(()=>{this.checkAndClearAllMatches(initial, updateScore, targetScore, gameCompleted, onCandiesClear)}, 1000);
+
+        while(!this.isStable){
+            this.checkAndClearAllMatches(initial, updateScore, targetScore, gameCompleted, onCandiesClear);
+        }
+        // this.clearId = setInterval(()=>{this.checkAndClearAllMatches(initial, updateScore, targetScore, gameCompleted, onCandiesClear)}, 500);
     }
 
     removeRepeatedGroups(group, groupType){

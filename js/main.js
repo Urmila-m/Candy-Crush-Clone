@@ -7,7 +7,7 @@ var retryBtn = document.getElementById('retry');
 var winScreen= document.getElementById('win-screen');
 var restartBtn = document.getElementById('restart');
 var game;
-var targetScore = 50;
+var targetScore = 500;
 var noOfMoves = 50;
 
 playBtn.addEventListener('click', ()=>{
