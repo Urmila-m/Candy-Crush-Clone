@@ -8,7 +8,7 @@ var winScreen= document.getElementById('win-screen');
 var restartBtn = document.getElementById('restart');
 var game;
 var targetScore = 50;
-var noOfMoves = 10;
+var noOfMoves = 50;
 
 playBtn.addEventListener('click', ()=>{
     startScreen.style.display = 'none';

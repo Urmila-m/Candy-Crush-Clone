@@ -194,12 +194,17 @@ class CheckForMatch{
                     this.candiesArray[col][row].type = "hstriped";
                     this.spliceCandiesInCol(row+1, col, matchObjectLength - 1, initial);
                 }
+                else if(matchObjectLength === 5 && initial === USER_CLEAR){
+                    this.candiesArray[col][row].type = "color_bomb";
+                    this.candiesArray[col][row].color = "all_color";
+                    this.spliceCandiesInCol(row+1, col, matchObjectLength-1, initial);
+                }
                 else{
                     this.spliceCandiesInCol(row, col, matchObjectLength, initial);
                 }
 
                 for(let k = row; k < this.candiesArray[col].length; k++){
-                    if(matchObjectLength === 4 && initial === USER_CLEAR){
+                    if((matchObjectLength === 4 || matchObjectLength === 5) && initial === USER_CLEAR){
                         if(k >= row+1){
                             this.candiesArray[col][k].row = k;
                             this.candiesArray[col][k].isMoving = true;
@@ -269,6 +274,12 @@ class CheckForMatch{
                     if(j === col){
                         if(matchObjectLength === 4 && initial === USER_CLEAR){
                             this.candiesArray[j][row].type = "vstriped";
+                            this.score += 1;
+                        }
+                        else if(matchObjectLength === 5 && initial === USER_CLEAR){
+                            this.candiesArray[j][row].color = "all_color";
+                            this.candiesArray[j][row].type = "color_bomb";
+                            this.score += 1;
                         }
                         else{
                             this.candiesArray[j].splice(row, 1);
@@ -286,7 +297,7 @@ class CheckForMatch{
 
                 for(let j=col; j<(col+matchObjectLength); j++){
                     for(let i=row; i<this.candiesArray[j].length; i++){
-                        if(matchObjectLength === 4 && initial === USER_CLEAR){
+                        if((matchObjectLength === 4 || matchObjectLength === 5) && initial === USER_CLEAR){
                             if(j !== col){
                                 this.candiesArray[j][i].row = i;
                                 this.candiesArray[j][i].isMoving = true;
@@ -383,17 +394,17 @@ class CheckForMatch{
             this.clearMatchedCandies(initial, updateScore, mh5, MATCH_HOR);
             mv5 = this.checkFor5VerMatch();
             this.clearMatchedCandies(initial, updateScore, mv5);
-            mh4 = this.checkFor4HorMatch();
-            this.clearMatchedCandies(initial, updateScore, mh4, MATCH_HOR);
-            mv4 = this.checkFor4VerMatch();
-            this.clearMatchedCandies(initial, updateScore, mv4)
-            mv3 = this.checkFor3VerMatch();
-            this.clearMatchedCandies(initial, updateScore, mv3);
-            mh3 = this.checkFor3HorMatch();
-            this.clearMatchedCandies(initial, updateScore, mh3, MATCH_HOR);
+            // mh4 = this.checkFor4HorMatch();
+            // this.clearMatchedCandies(initial, updateScore, mh4, MATCH_HOR);
+            // mv4 = this.checkFor4VerMatch();
+            // this.clearMatchedCandies(initial, updateScore, mv4)
+            // mv3 = this.checkFor3VerMatch();
+            // this.clearMatchedCandies(initial, updateScore, mv3);
+            // mh3 = this.checkFor3HorMatch();
+            // this.clearMatchedCandies(initial, updateScore, mh3, MATCH_HOR);
 
-            if(mv5.length === 0 && mh4.length === 0 && mh5.length === 0 && mh3.length === 0 && mv4.length === 0 && mv3.length === 0){
-            // if (mv4.length === 0 || mh4.length === 0) {
+            // if(mv5.length === 0 && mh4.length === 0 && mh5.length === 0 && mh3.length === 0 && mv4.length === 0 && mv3.length === 0){
+            if (mv5.length === 0 || mh5.length === 0) {
                 console.log("stop the execution"); 
                 clearInterval(this.clearId);
                 if (initial === USER_CLEAR) {
