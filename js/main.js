@@ -7,19 +7,29 @@ var retryBtn = document.getElementById('retry');
 var winScreen= document.getElementById('win-screen');
 var restartBtn = document.getElementById('restart');
 var game;
-var targetScore = 500;
-var noOfMoves = 50;
+var targetScore = 80;
+var noOfMoves = 10;
 
 playBtn.addEventListener('click', ()=>{
     startScreen.style.display = 'none';
     gameBlock.style.display = 'block';
     gameOverBlock.style.display = 'none';
     winScreen.style.display = 'none';
-    game = new Game(targetScore, noOfMoves, gameOver, gameCompleted);
+    if (game instanceof Game) {
+        game.resetGame();
+        game.noOfMoves = noOfMoves;
+        game.clearCanvas();
+        game.drawGrid();
+        game.fillCandies();
+        game.setHTMLElements();
+        game.paintCanvas();
+    }
+    else{
+        game = new Game(targetScore, noOfMoves, gameOver, gameCompleted);
+    }
 });
 
 function gameOver(){
-    game = null;
     gameOverBlock.style.display = 'block';
     retryBtn.addEventListener('click', ()=>{
        setStartScreen();
@@ -27,7 +37,6 @@ function gameOver(){
 }
 
 function gameCompleted(){
-    game = null;
     winScreen.style.display = 'block';
     restartBtn.addEventListener('click', ()=>{
         setStartScreen();

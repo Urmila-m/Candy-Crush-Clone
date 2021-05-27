@@ -14,27 +14,39 @@ class Game{
     }
 
     init(){
+        this.getElements();
+        this.ctx = this.canvas.getContext("2d");
+        this.ctx.strokeStyle = "palevioletred";
+        this.ctx.lineWidth = 0.2;
+        this.resetGame();
+        this.setHTMLElements();
+        this.rect = this.canvas.getBoundingClientRect();
+    }
+
+    resetGame(){
+        this.score = 0;
+        this.move = 0;
+        this.offsetY = 0;
+        this.offsetX = 0;
+        this.candiesArray = []; 
+        this.isDragging = false;
+        this.selectedCandy = null; 
+    }
+
+    setHTMLElements(){
+        this.noOfMovesBoard.innerHTML = this.noOfMoves;
+        this.targetScoreBoard.innerHTML = this.targetScore;
+        this.highScoreBoard.innerHTML = this.highScore;
+        this.scoreBoard.innerHTML = this.score
+    }
+
+    getElements(){
         this.canvas = document.getElementById('canvas');
         this.scoreBoard = document.getElementById('score');
         this.noOfMovesBoard = document.getElementById('no-of-moves-left');
         this.targetScoreBoard = document.getElementById('target-score');
         this.highScoreBoard = document.getElementById('high-score');
         this.delicious = document.getElementById('delicious');
-        this.ctx = this.canvas.getContext("2d");
-        this.ctx.strokeStyle = "palevioletred";
-        this.ctx.lineWidth = 0.2;
-        this.candiesArray = [];
-        this.isDragging = false;
-        this.selectedCandy = null;
-        this.offsetX = 0;
-        this.offsetY = 0;
-        this.move = 0;
-        this.score = 0;
-        this.noOfMovesBoard.innerHTML = this.noOfMoves;
-        this.targetScoreBoard.innerHTML = this.targetScore;
-        this.highScoreBoard.innerHTML = this.highScore;
-        this.scoreBoard.innerHTML = this.score;
-        this.rect = this.canvas.getBoundingClientRect();
     }
 
     drawGrid(){
@@ -182,13 +194,24 @@ class Game{
         if (this.noOfMoves <= 0) {
             if (this.targetScore>this.score) {
                 cancelAnimationFrame(this.animId);
-                if (this.score > this.highScore) {
-                    localStorage.setItem("high-score", this.score);
-                }
-                document.removeEventListener('mouseup', this.mouseUpHandler.bind(this));
+                this.updateHighScore();
                 this.gameOver();
             }
         }
+        if (this.score >= targetScore){
+
+            console.log("you winnnnnn!!!!!");
+            cancelAnimationFrame(this.animId);
+            this.updateHighScore();
+            gameCompleted();
+        }
+    }
+
+    updateHighScore(){
+        if (this.score > this.highScore) {
+            localStorage.setItem("high-score", this.score);
+        }
+        this.highScore = this.score;
     }
 
     updateScore(score){

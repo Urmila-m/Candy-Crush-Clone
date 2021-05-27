@@ -423,16 +423,6 @@ class CheckForMatch{
                     onCandiesClear();
                 }
 
-                if (this.score >= targetScore){
-
-                    console.log("you winnnnnn!!!!!");
-                    let highScore = localStorage.getItem("high-score")?localStorage.getItem("high-score"):0;
-                    // cancelAnimationFrame(this.animId);
-                    if (this.score > highScore) {
-                        localStorage.setItem("high-score", this.score);
-                    }
-                    gameCompleted();
-                }
                 this.isStable = true;
             }
         }
