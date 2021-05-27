@@ -394,17 +394,17 @@ class CheckForMatch{
             this.clearMatchedCandies(initial, updateScore, mh5, MATCH_HOR);
             mv5 = this.checkFor5VerMatch();
             this.clearMatchedCandies(initial, updateScore, mv5);
-            // mh4 = this.checkFor4HorMatch();
-            // this.clearMatchedCandies(initial, updateScore, mh4, MATCH_HOR);
-            // mv4 = this.checkFor4VerMatch();
-            // this.clearMatchedCandies(initial, updateScore, mv4)
-            // mv3 = this.checkFor3VerMatch();
-            // this.clearMatchedCandies(initial, updateScore, mv3);
-            // mh3 = this.checkFor3HorMatch();
-            // this.clearMatchedCandies(initial, updateScore, mh3, MATCH_HOR);
+            mh4 = this.checkFor4HorMatch();
+            this.clearMatchedCandies(initial, updateScore, mh4, MATCH_HOR);
+            mv4 = this.checkFor4VerMatch();
+            this.clearMatchedCandies(initial, updateScore, mv4)
+            mv3 = this.checkFor3VerMatch();
+            this.clearMatchedCandies(initial, updateScore, mv3);
+            mh3 = this.checkFor3HorMatch();
+            this.clearMatchedCandies(initial, updateScore, mh3, MATCH_HOR);
 
-            // if(mv5.length === 0 && mh4.length === 0 && mh5.length === 0 && mh3.length === 0 && mv4.length === 0 && mv3.length === 0){
-            if (mv5.length === 0 || mh5.length === 0) {
+            if(mv5.length === 0 && mh4.length === 0 && mh5.length === 0 && mh3.length === 0 && mv4.length === 0 && mv3.length === 0){
+            // if (mv5.length === 0 || mh5.length === 0) {
                 console.log("stop the execution"); 
                 clearInterval(this.clearId);
                 if (initial === USER_CLEAR) {

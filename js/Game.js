@@ -20,6 +20,7 @@ class Game{
         this.noOfMovesBoard = document.getElementById('no-of-moves-left');
         this.targetScoreBoard = document.getElementById('target-score');
         this.highScoreBoard = document.getElementById('high-score');
+        this.delicious = document.getElementById('delicious');
         this.ctx = this.canvas.getContext("2d");
         this.ctx.strokeStyle = "palevioletred";
         this.ctx.lineWidth = 0.2;
@@ -158,6 +159,7 @@ class Game{
             document.removeEventListener('mousemove', this.mouseMoveHandler.bind(this));
 
             if(swap){
+                // this.delicious.style.display = 'block';
                 let checkForMatch = new CheckForMatch(this.candiesArray);
                 checkForMatch.clearCandiesUntilStable(this.score, this.scoreBoard, USER_CLEAR, this.updateScore.bind(this), this.targetScore, this.gameCompleted, this.onCandiesClear.bind(this));
             }
@@ -170,6 +172,10 @@ class Game{
     }
 
     onCandiesClear(){
+        this.delicious.style.display = 'block';
+        setTimeout(()=>{
+            this.delicious.style.display = 'none';
+        }, 500);
         this.noOfMoves -= 1;
         console.log("moves", this.noOfMoves);
         this.noOfMovesBoard.innerHTML = this.noOfMoves;
