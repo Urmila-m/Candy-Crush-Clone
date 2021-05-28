@@ -142,7 +142,6 @@ class CheckForMatch{
                     if (this.candiesArray[obj.col][obj.row].type === "vstriped" || this.candiesArray[obj.col][obj.row].type === "hstriped") {
                         stripedCandy = this.candiesArray[obj.col][obj.row];
                     }
-
                 }
 
                 this.bringCandiesDown(initial, updateScore, row, col, matchObject.length, stripedCandy, matchType);
@@ -416,7 +415,7 @@ class CheckForMatch{
             this.clearMatchedCandies(initial, updateScore, mh3, MATCH_HOR);
 
             if(mv5.length === 0 && mh4.length === 0 && mh5.length === 0 && mh3.length === 0 && mv4.length === 0 && mv3.length === 0){
-            // if (mv4.length === 0 || mh4.length === 0) {
+            // if (mv5.length === 0 || mh5.length === 0) {
                 console.log("stop the execution"); 
                 // clearInterval(this.clearId);
                 if (initial === USER_CLEAR) {
@@ -436,6 +435,63 @@ class CheckForMatch{
             this.checkAndClearAllMatches(initial, updateScore, targetScore, gameCompleted, onCandiesClear);
         }
         // this.clearId = setInterval(()=>{this.checkAndClearAllMatches(initial, updateScore, targetScore, gameCompleted, onCandiesClear)}, 500);
+    }
+
+    handleColorBomb(swap, score, scoreBoard, updateScore){
+        this.score = score;
+        this.scoreBoard = scoreBoard;
+        this.updateScore = updateScore;
+
+        if(swap[0].type === 'color_bomb'){
+            this.candiesArray[swap[0].column].splice(swap[0].row, 1);
+            this.score += 1;
+            this.removeCandiesOfColor(swap[1].color);
+        }
+        else{ 
+            this.candiesArray[swap[1].column].splice(swap[1].row, 1);
+            this.score += 1;
+            this.removeCandiesOfColor(swap[0].color);
+        }
+
+        this.scoreBoard.innerHTML = this.score;
+
+        this.addNewCandies();
+    }
+
+    removeCandiesOfColor(color){
+        // get the row and col of the same colored candies
+        let splicedCandy = [];
+        for(let j=0; j<this.candiesArray.length; j++){
+            let rows = [];
+            splicedCandy.push({"rows": rows, "col": j});
+            for(let i=0; i<this.candiesArray[j].length; i++){
+                if(this.candiesArray[j][i].color === color){
+                    rows.push(i);
+                }
+            }
+        }
+
+        // remove all the same colored candies
+        for(let obj of splicedCandy){
+            if(obj.rows.length > 0){
+                let len = obj.rows.length;
+                for(let k=0; k<len; k++){
+                    this.candiesArray[obj.col].splice(obj.rows[k], 1);
+                    this.score += 1;
+                    console.log('score', this.score);
+                    for(let m=k+1; m<len; m++){
+                        obj.rows[m] -= 1;
+                    }
+                }
+            }
+        }
+
+        this.updateScore(this.score);
+
+        // bring the upper candies down
+        for(let j=0; j<this.candiesArray.length; j++){
+            this.resetPosUpperCandiesInCol(0, j);
+        }
     }
 
     removeRepeatedGroups(group, groupType){

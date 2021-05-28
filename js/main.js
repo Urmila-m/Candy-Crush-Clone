@@ -7,8 +7,8 @@ var retryBtn = document.getElementById('retry');
 var winScreen= document.getElementById('win-screen');
 var restartBtn = document.getElementById('restart');
 var game;
-var targetScore = 80;
-var noOfMoves = 10;
+var targetScore = 150;
+var noOfMoves = 20;
 
 playBtn.addEventListener('click', ()=>{
     startScreen.style.display = 'none';

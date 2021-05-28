@@ -96,6 +96,8 @@ class Game{
         for (let column of this.candiesArray){
             for(let candy of column){
                 let spriteCandy = sprite[candy.color][candy.type];
+
+                // adding candies falling animation
                 if (candy.isMoving) {
                     if (! candy.hasReachedDestination()) {
                         candy.y = Math.min(candy.y+this.speed, ((7-candy.row) * GRID_HEIGHT + CANDY_PADDING));
@@ -164,8 +166,8 @@ class Game{
 
     mouseUpHandler(e){
         if (this.selectedCandy) {
+            //false if not swap, else gives the candy pair swapped 
             let swap = new SwapCandy(this.selectedCandy, this.candiesArray).swapCandies(this.move);
-            console.log("swap", swap);
             this.isDragging = false;
             this.offsetX = 0;
             this.offsetY = 0;
@@ -174,6 +176,9 @@ class Game{
             if(swap){
                 // this.delicious.style.display = 'block';
                 let checkForMatch = new CheckForMatch(this.candiesArray);
+                if (swap[0].type === 'color_bomb' || swap[1].type === 'color_bomb'){
+                    checkForMatch.handleColorBomb(swap, this.score, this.scoreBoard, this.updateScore.bind(this));
+                }
                 checkForMatch.clearCandiesUntilStable(this.score, this.scoreBoard, USER_CLEAR, this.updateScore.bind(this), this.targetScore, this.gameCompleted, this.onCandiesClear.bind(this));
             }
             else{
@@ -222,7 +227,7 @@ class Game{
         if(this.isDragging){
             let x = e.clientX - this.rect.left;
             let y = e.clientY - this.rect.top;
-            // check for mouse movement for right/left edged candies and bottom/top row candies
+            // check for mouse movement for right/left edged candies and bottom/top edged candies
             if(((x - this.offsetX + CANDY_WIDTH + CANDY_PADDING) > this.canvas.offsetWidth)
                 || ((y - this.offsetY + CANDY_HEIGHT + CANDY_PADDING) > this.canvas.offsetHeight)
                 || (x - this.offsetX) < 0
